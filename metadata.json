@@ -1,0 +1,7 @@
+{
+  "name": "GPS-Based Attendance Management System",
+  "description": "Location-verified attendance assessment system using Haversine geofencing and anomaly detection.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
