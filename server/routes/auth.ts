@@ -137,6 +137,7 @@ authRouter.post('/forgot-password', async (req, res) => {
     }
       
     const resetLink = `${originUrl}/reset-password/${token}`;
+
     
     await sendPasswordResetEmail(email, resetLink);
     
@@ -171,6 +172,9 @@ authRouter.post('/reset-password', async (req, res) => {
     
     // Delete the used token
     await query('DELETE FROM password_reset_tokens WHERE token = $1', [token]);
+
+    // Log the user out of any existing session in this browser
+    res.clearCookie('jwt');
 
     res.json({ success: true, message: 'Password reset successfully' });
   } catch (error: any) {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Users, AlertTriangle, CheckCircle, Clock, LogOut, MapPin, X } from 'lucide-react';
+import { useToast } from '../contexts/ToastContext';
 
 export const AdminDashboard: React.FC = () => {
   const [anomalies, setAnomalies] = useState<any[]>([]);
@@ -26,6 +27,7 @@ export const AdminDashboard: React.FC = () => {
     department: ''
   });
   const navigate = useNavigate();
+  const { toast, success, error } = useToast();
 
   useEffect(() => {
     fetchUser();
@@ -125,7 +127,7 @@ export const AdminDashboard: React.FC = () => {
       const data = await res.json();
       console.log('Course creation response:', data);
       if (data.success) {
-        alert('Course created successfully!');
+        success('Course created successfully!');
         setShowCourseModal(false);
         fetchCourses();
         setNewCourse({
@@ -137,11 +139,11 @@ export const AdminDashboard: React.FC = () => {
           academic_year: '2025/2026'
         });
       } else {
-        alert('Failed to create course: ' + (data.message || 'Unknown error'));
+        error('Failed to create course: ' + (data.message || 'Unknown error'));
       }
     } catch (err) {
       console.error('Failed to create course', err);
-      alert('An error occurred while creating the course');
+      error('An error occurred while creating the course');
     }
   };
 
@@ -157,7 +159,7 @@ export const AdminDashboard: React.FC = () => {
       const data = await res.json();
       console.log('Lecturer creation response:', data);
       if (data.success) {
-        alert('Lecturer account created successfully!');
+        success('Lecturer account created successfully!');
         setShowLecturerModal(false);
         fetchLecturers();
         setNewLecturer({
@@ -167,11 +169,11 @@ export const AdminDashboard: React.FC = () => {
           department: ''
         });
       } else {
-        alert('Failed to create lecturer: ' + (data.message || 'Unknown error'));
+        error('Failed to create lecturer: ' + (data.message || 'Unknown error'));
       }
     } catch (err) {
       console.error('Failed to create lecturer', err);
-      alert('An error occurred while creating the lecturer account');
+      error('An error occurred while creating the lecturer account');
     }
   };
 
@@ -189,13 +191,13 @@ export const AdminDashboard: React.FC = () => {
             </div>
             
             <div className="flex items-center gap-4">
-              <div className="hidden sm:flex items-center gap-3 px-3 py-1.5 bg-slate-50 rounded-full border border-slate-100">
-                <div className="w-9 h-9 rounded-full bg-slate-900 flex items-center justify-center text-white font-bold text-sm shadow-sm">
+              <div className="flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-1.5 bg-slate-50 rounded-full border border-slate-100 min-w-0">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-900 flex items-center justify-center text-white font-bold text-xs sm:text-sm shadow-sm flex-shrink-0">
                   {getInitials(user?.full_name)}
                 </div>
-                <div className="text-sm">
-                  <p className="font-bold text-slate-900 leading-none">{user?.full_name || 'Admin'}</p>
-                  <p className="text-slate-500 font-medium text-[10px] mt-0.5 uppercase tracking-wider">Administrator</p>
+                <div className="hidden sm:block text-sm">
+                  <p className="font-bold text-slate-900 leading-none truncate max-w-[150px]">{user?.full_name || 'Admin'}</p>
+                  <p className="text-slate-500 font-medium text-[10px] mt-0.5 uppercase tracking-wider truncate max-w-[150px]">Administrator</p>
                 </div>
               </div>
               <button 

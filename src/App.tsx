@@ -16,20 +16,24 @@ import { ForgotPassword } from './pages/ForgotPassword';
 import { ResetPassword } from './pages/ResetPassword';
 import { ForceChangePassword } from './pages/ForceChangePassword';
 
+import { ToastProvider } from './contexts/ToastContext';
+
 export default function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password/:token" element={<ResetPassword />} />
-        <Route path="/force-change-password" element={<ForceChangePassword />} />
-        <Route path="/student" element={<StudentDashboard />} />
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/lecturer" element={<LecturerDashboard />} />
-      </Routes>
-    </Router>
+    <ToastProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route path="/force-change-password" element={<ForceChangePassword />} />
+          <Route path="/student" element={<StudentDashboard />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/lecturer" element={<LecturerDashboard />} />
+        </Routes>
+      </Router>
+    </ToastProvider>
   );
 }

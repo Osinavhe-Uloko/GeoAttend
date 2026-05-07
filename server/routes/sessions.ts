@@ -33,13 +33,20 @@ sessionsRouter.post('/', authorize(['lecturer', 'admin']), async (req: AuthReque
 
 sessionsRouter.get('/', authorize(['lecturer', 'admin']), async (req: AuthRequest, res) => {
   try {
-    const { rows } = await query(
-      `SELECT ls.*, c.course_code, c.course_name, gz.zone_name 
+    let q = `SELECT ls.*, c.course_code, c.course_name, gz.zone_name 
        FROM lecture_sessions ls 
        JOIN courses c ON ls.course_id = c.course_id 
-       JOIN geofence_zones gz ON ls.geofence_zone_id = gz.zone_id 
-       ORDER BY ls.start_time DESC`
-    );
+       JOIN geofence_zones gz ON ls.geofence_zone_id = gz.zone_id`;
+    const params: any[] = [];
+    
+    if (req.user.role_name === 'lecturer') {
+      q += ` WHERE ls.created_by = $1`;
+      params.push(req.user.user_id);
+    }
+    
+    q += ` ORDER BY ls.start_time DESC`;
+    
+    const { rows } = await query(q, params);
     res.json({ success: true, data: rows, message: 'Sessions retrieved' });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });

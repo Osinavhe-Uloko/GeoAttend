@@ -204,23 +204,23 @@ export const StudentDashboard: React.FC = () => {
             </div>
             
             <div className="flex items-center gap-4">
-              <div className="hidden sm:flex items-center gap-3 px-3 py-1.5 bg-slate-50 rounded-full border border-slate-100 min-w-[140px]">
+              <div className="flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-1.5 bg-slate-50 rounded-full border border-slate-100 min-w-0 sm:min-w-[140px]">
                 {isUserLoading ? (
                   <>
-                    <div className="w-9 h-9 rounded-full bg-slate-200 animate-pulse" />
-                    <div className="space-y-1">
+                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-200 animate-pulse flex-shrink-0" />
+                    <div className="hidden sm:block space-y-1">
                       <div className="h-3 w-20 bg-slate-200 animate-pulse rounded" />
                       <div className="h-2 w-12 bg-slate-200 animate-pulse rounded" />
                     </div>
                   </>
                 ) : (
                   <>
-                    <div className="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm shadow-sm">
+                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-xs sm:text-sm shadow-sm flex-shrink-0">
                       {getInitials(user?.full_name)}
                     </div>
-                    <div className="text-sm">
-                      <p className="font-bold text-slate-900 leading-none">{user?.full_name || 'Student'}</p>
-                      <p className="text-blue-600 font-medium text-[10px] mt-0.5 uppercase tracking-wider">{user?.matric_number || 'ID'}</p>
+                    <div className="hidden sm:block text-sm">
+                      <p className="font-bold text-slate-900 leading-none truncate max-w-[150px]">{user?.full_name || 'Student'}</p>
+                      <p className="text-blue-600 font-medium text-[10px] mt-0.5 uppercase tracking-wider truncate max-w-[150px]">{user?.matric_number || 'ID'}</p>
                     </div>
                   </>
                 )}

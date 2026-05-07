@@ -24,7 +24,15 @@ zonesRouter.post('/', async (req: AuthRequest, res) => {
 
 zonesRouter.get('/', async (req: AuthRequest, res) => {
   try {
-    const { rows } = await query('SELECT * FROM geofence_zones WHERE is_active = TRUE');
+    let q = 'SELECT * FROM geofence_zones WHERE is_active = TRUE';
+    const params: any[] = [];
+    
+    if (req.user.role_name === 'lecturer') {
+      q += ' AND created_by = $1';
+      params.push(req.user.user_id);
+    }
+    
+    const { rows } = await query(q, params);
     res.json({ success: true, data: rows, message: 'Zones retrieved' });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });

@@ -5,6 +5,7 @@ import {
   MapPin, Clock, Plus, BookOpen, Users, LogOut, 
   ChevronRight, Calendar, Settings, AlertCircle, CheckCircle, Loader2, X, Copy, Download, Edit2, Trash2
 } from 'lucide-react';
+import { useToast } from '../contexts/ToastContext';
 
 export const LecturerDashboard: React.FC = () => {
   const { getCoordinates, isLoading: isGpsLoading } = useGPS();
@@ -18,6 +19,7 @@ export const LecturerDashboard: React.FC = () => {
   const [isZonesLoading, setIsZonesLoading] = useState(true);
   const [isCoursesLoading, setIsCoursesLoading] = useState(true);
   const navigate = useNavigate();
+  const { toast, success, error } = useToast();
 
   // Form states
   const [showSessionModal, setShowSessionModal] = useState(false);
@@ -146,7 +148,7 @@ export const LecturerDashboard: React.FC = () => {
         longitude: coords.longitude.toFixed(7)
       }));
     } catch (err: any) {
-      alert(err.message || 'Failed to get current location');
+      error(err.message || 'Failed to get current location');
     }
   };
 
@@ -176,17 +178,17 @@ export const LecturerDashboard: React.FC = () => {
       });
       const data = await res.json();
       if (data.success) {
-        alert(editingSession ? 'Session updated successfully!' : 'Session created successfully!');
+        success(editingSession ? 'Session updated successfully!' : 'Session created successfully!');
         setShowSessionModal(false);
         setEditingSession(null);
         setNewSession({ course_id: '', geofence_zone_id: '', start_time: '', end_time: '' });
         fetchInitialData();
       } else {
-        alert('Error: ' + (data.message || 'Unknown error'));
+        error('Error: ' + (data.message || 'Unknown error'));
       }
     } catch (err) {
       console.error('Failed to save session', err);
-      alert('An error occurred');
+      error('An error occurred');
     }
   };
 
@@ -213,7 +215,7 @@ export const LecturerDashboard: React.FC = () => {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    alert('Session code copied: ' + text);
+    success('Session code copied: ' + text);
   };
 
   const downloadCSV = async (sessionId: string) => {
@@ -221,22 +223,28 @@ export const LecturerDashboard: React.FC = () => {
       const response = await fetch(`/api/sessions/csv/${sessionId}`);
       if (!response.ok) {
         const data = await response.json();
-        alert(data.message || 'Failed to download CSV');
+        error(data.message || 'Failed to download CSV');
         return;
       }
+      
+      const session = sessions.find(s => s.session_id === sessionId);
+      const courseCode = session?.course_code || 'Course';
+      const dateStr = session?.start_time 
+        ? new Date(session.start_time).toISOString().split('T')[0] 
+        : new Date().toISOString().split('T')[0];
       
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `attendance_${sessionId}.csv`;
+      a.download = `${courseCode} Attendance (${dateStr}).csv`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (err) {
       console.error('Error downloading CSV:', err);
-      alert('Failed to download CSV');
+      error('Failed to download CSV');
     }
   };
 
@@ -261,7 +269,7 @@ export const LecturerDashboard: React.FC = () => {
       };
 
       if (isNaN(zoneData.latitude) || isNaN(zoneData.longitude)) {
-        alert('Please provide valid coordinates');
+        error('Please provide valid coordinates');
         return;
       }
 
@@ -273,16 +281,16 @@ export const LecturerDashboard: React.FC = () => {
       const data = await res.json();
       console.log('Zone creation response:', data);
       if (data.success) {
-        alert('Zone saved successfully!');
+        success('Zone saved successfully!');
         setShowZoneModal(false);
         fetchInitialData();
         setNewZone({ zone_name: '', latitude: '', longitude: '', radius_meters: 100, course_id: '' });
       } else {
-        alert(data.message || 'Failed to create zone');
+        error(data.message || 'Failed to create zone');
       }
     } catch (err) {
       console.error('Failed to create zone', err);
-      alert('An error occurred while creating the zone');
+      error('An error occurred while creating the zone');
     }
   };
 
@@ -316,23 +324,23 @@ export const LecturerDashboard: React.FC = () => {
             </div>
             
             <div className="flex items-center gap-4">
-              <div className="hidden sm:flex items-center gap-3 px-3 py-1.5 bg-slate-50 rounded-full border border-slate-100 min-w-[140px]">
+              <div className="flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-1.5 bg-slate-50 rounded-full border border-slate-100 min-w-0 sm:min-w-[140px]">
                 {isUserLoading ? (
                   <>
-                    <div className="w-9 h-9 rounded-full bg-slate-200 animate-pulse" />
-                    <div className="space-y-1">
+                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-200 animate-pulse flex-shrink-0" />
+                    <div className="hidden sm:block space-y-1">
                       <div className="h-3 w-20 bg-slate-200 animate-pulse rounded" />
                       <div className="h-2 w-12 bg-slate-200 animate-pulse rounded" />
                     </div>
                   </>
                 ) : (
                   <>
-                    <div className="w-9 h-9 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-sm">
+                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold text-xs sm:text-sm shadow-sm flex-shrink-0">
                       {getInitials(user?.full_name)}
                     </div>
-                    <div className="text-sm">
-                      <p className="font-bold text-slate-900 leading-none">{user?.full_name || 'Lecturer'}</p>
-                      <p className="text-indigo-600 font-medium text-[10px] mt-0.5 uppercase tracking-wider">{user?.department || 'Faculty'}</p>
+                    <div className="hidden sm:block text-sm">
+                      <p className="font-bold text-slate-900 leading-none truncate max-w-[150px]">{user?.full_name || 'Lecturer'}</p>
+                      <p className="text-indigo-600 font-medium text-[10px] mt-0.5 uppercase tracking-wider truncate max-w-[150px]">{user?.department || 'Faculty'}</p>
                     </div>
                   </>
                 )}

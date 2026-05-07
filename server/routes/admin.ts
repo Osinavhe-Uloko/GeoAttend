@@ -94,11 +94,17 @@ adminRouter.get('/users', authorize(['admin']), async (req: AuthRequest, res) =>
 
 adminRouter.get('/courses', async (req: AuthRequest, res) => {
   try {
-    const { rows } = await query(
-      `SELECT c.*, u.full_name as lecturer_name 
+    let q = `SELECT c.*, u.full_name as lecturer_name 
        FROM courses c 
-       JOIN users u ON c.lecturer_id = u.user_id`
-    );
+       JOIN users u ON c.lecturer_id = u.user_id`;
+    const params: any[] = [];
+    
+    if (req.user.role_name === 'lecturer') {
+      q += ' WHERE c.lecturer_id = $1';
+      params.push(req.user.user_id);
+    }
+    
+    const { rows } = await query(q, params);
     res.json({ success: true, data: rows, message: 'Courses retrieved' });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
