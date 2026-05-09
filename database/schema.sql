@@ -61,6 +61,7 @@ CREATE TABLE lecture_sessions (
     session_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     course_id UUID NOT NULL REFERENCES courses(course_id),
     geofence_zone_id UUID NOT NULL REFERENCES geofence_zones(zone_id),
+    session_code VARCHAR(10) UNIQUE,
     start_time TIMESTAMP WITH TIME ZONE NOT NULL,
     end_time TIMESTAMP WITH TIME ZONE NOT NULL,
     created_by UUID NOT NULL REFERENCES users(user_id),
