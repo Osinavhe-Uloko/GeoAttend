@@ -180,7 +180,7 @@ export const LoginPage: React.FC = () => {
               disabled={isLoading}
               className="w-full flex justify-center items-center py-3.5 px-4 rounded-xl text-sm font-semibold text-white bg-slate-900 hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 transition-all disabled:opacity-70 disabled:cursor-not-allowed shadow-sm"
             >
-              {isLoading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Log in safely'}
+              {isLoading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Log in'}
             </button>
             
             <p className="text-center text-sm font-medium text-slate-500 pt-4">
