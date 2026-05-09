@@ -3,13 +3,13 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Roles Table
-CREATE TABLE roles (
+CREATE TABLE IF NOT EXISTS roles (
     role_id SERIAL PRIMARY KEY,
     role_name VARCHAR(50) UNIQUE NOT NULL CHECK (role_name IN ('student', 'lecturer', 'admin'))
 );
 
 -- Users Table
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     user_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     full_name VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
@@ -24,7 +24,7 @@ CREATE TABLE users (
 );
 
 -- Courses Table
-CREATE TABLE courses (
+CREATE TABLE IF NOT EXISTS courses (
     course_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     course_code VARCHAR(20) UNIQUE NOT NULL,
     course_name VARCHAR(255) NOT NULL,
@@ -35,7 +35,7 @@ CREATE TABLE courses (
 );
 
 -- Enrollments Table
-CREATE TABLE enrollments (
+CREATE TABLE IF NOT EXISTS enrollments (
     enrollment_id SERIAL PRIMARY KEY,
     student_id UUID NOT NULL REFERENCES users(user_id),
     course_id UUID NOT NULL REFERENCES courses(course_id),
@@ -44,7 +44,7 @@ CREATE TABLE enrollments (
 );
 
 -- Geofence Zones Table
-CREATE TABLE geofence_zones (
+CREATE TABLE IF NOT EXISTS geofence_zones (
     zone_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     zone_name VARCHAR(255) NOT NULL,
     latitude DECIMAL(10,8) NOT NULL,
@@ -57,7 +57,7 @@ CREATE TABLE geofence_zones (
 );
 
 -- Lecture Sessions Table
-CREATE TABLE lecture_sessions (
+CREATE TABLE IF NOT EXISTS lecture_sessions (
     session_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     course_id UUID NOT NULL REFERENCES courses(course_id),
     geofence_zone_id UUID NOT NULL REFERENCES geofence_zones(zone_id),
@@ -69,7 +69,7 @@ CREATE TABLE lecture_sessions (
 );
 
 -- Attendance Records Table
-CREATE TABLE attendance_records (
+CREATE TABLE IF NOT EXISTS attendance_records (
     record_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     student_id UUID NOT NULL REFERENCES users(user_id),
     session_id UUID NOT NULL REFERENCES lecture_sessions(session_id),
@@ -84,7 +84,7 @@ CREATE TABLE attendance_records (
 );
 
 -- Device Logs Table
-CREATE TABLE device_logs (
+CREATE TABLE IF NOT EXISTS device_logs (
     log_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES users(user_id),
     device_fingerprint VARCHAR(255) NOT NULL,
@@ -96,7 +96,7 @@ CREATE TABLE device_logs (
 );
 
 -- Audit Trail Table
-CREATE TABLE audit_trail (
+CREATE TABLE IF NOT EXISTS audit_trail (
     audit_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     actor_id UUID NOT NULL REFERENCES users(user_id),
     action VARCHAR(50) NOT NULL,
@@ -108,7 +108,7 @@ CREATE TABLE audit_trail (
 );
 
 -- Password Reset Tokens Table
-CREATE TABLE password_reset_tokens (
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
     token UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
     expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
@@ -116,10 +116,10 @@ CREATE TABLE password_reset_tokens (
 );
 
 -- Indexes for performance
-CREATE INDEX idx_users_email ON users(email);
-CREATE INDEX idx_users_matric ON users(matric_number);
-CREATE INDEX idx_attendance_session ON attendance_records(session_id);
-CREATE INDEX idx_attendance_student ON attendance_records(student_id);
-CREATE INDEX idx_device_logs_user ON device_logs(user_id);
-CREATE INDEX idx_sessions_course ON lecture_sessions(course_id);
-CREATE INDEX idx_sessions_time ON lecture_sessions(start_time, end_time);
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+CREATE INDEX IF NOT EXISTS idx_users_matric ON users(matric_number);
+CREATE INDEX IF NOT EXISTS idx_attendance_session ON attendance_records(session_id);
+CREATE INDEX IF NOT EXISTS idx_attendance_student ON attendance_records(student_id);
+CREATE INDEX IF NOT EXISTS idx_device_logs_user ON device_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_sessions_course ON lecture_sessions(course_id);
+CREATE INDEX IF NOT EXISTS idx_sessions_time ON lecture_sessions(start_time, end_time);

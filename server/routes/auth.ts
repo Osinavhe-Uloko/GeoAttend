@@ -32,6 +32,7 @@ authRouter.post('/register', async (req, res) => {
 
 authRouter.post('/login', async (req, res) => {
   const { email, password, device_fingerprint, user_agent } = req.body;
+  console.log(`Login attempt for: ${email}`);
   try {
     const { rows } = await query(
       `SELECT u.user_id, u.password_hash, u.is_active, r.role_name, u.requires_password_change 
@@ -39,23 +40,31 @@ authRouter.post('/login', async (req, res) => {
       [email]
     );
 
-    if (rows.length === 0 || !rows[0].is_active) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials or inactive account' });
+    if (rows.length === 0) {
+      console.log(`Login failed: User ${email} not found`);
+      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+    }
+
+    if (!rows[0].is_active) {
+      console.log(`Login failed: Account ${email} is inactive`);
+      return res.status(401).json({ success: false, message: 'Account is inactive' });
     }
 
     const match = await bcrypt.compare(password, rows[0].password_hash);
     if (!match) {
+      console.log(`Login failed: Incorrect password for ${email}`);
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
     const user = rows[0];
+    console.log(`Login success for: ${email} (Role: ${user.role_name})`);
 
     const token = jwt.sign({ userId: user.user_id, role: user.role_name }, process.env.JWT_SECRET || 'fallback_secret', { expiresIn: '8h' });
 
     res.cookie('jwt', token, {
       httpOnly: true,
-      secure: true, // Required for SameSite=None
-      sameSite: 'none', // Required for cross-origin iframe
+      secure: true, 
+      sameSite: 'lax', 
       maxAge: 8 * 60 * 60 * 1000 // 8 hours
     });
 
